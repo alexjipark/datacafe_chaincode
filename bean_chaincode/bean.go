@@ -84,7 +84,7 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	}
 	recvBean := binary.BigEndian.Uint64(recvBeanBytes)
 
-	if (sendBean < beanAmount) {
+	if sendBean < beanAmount {
 		return nil, errors.New("Not enough for Sender..")
 	}
 	remainBean4Sender = sendBean - beanAmount

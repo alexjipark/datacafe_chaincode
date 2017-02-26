@@ -57,7 +57,7 @@ func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args [
 
 func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-	var remainBean4Sender, newBean4Receiver int
+	var remainBean4Sender, newBean4Receiver int64
 
 	beanLogger.Debug("=============== transferBean =================")
 	if len(args) != 3 {
@@ -84,11 +84,12 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	}
 	recvBean := binary.BigEndian.Uint64(recvBeanBytes)
 
-	if sendBean < beanAmount {
+	uBeanAmount := uint64(beanAmount)
+	if sendBean < uBeanAmount {
 		return nil, errors.New("Not enough for Sender..")
 	}
-	remainBean4Sender = sendBean - beanAmount
-	newBean4Receiver = recvBean + beanAmount
+	remainBean4Sender = sendBean - uBeanAmount
+	newBean4Receiver = recvBean + uBeanAmount
 
 	// Store new Bean Amounts
 	err = stub.PutState(sendAddr, []byte(strconv.Itoa(remainBean4Sender)))

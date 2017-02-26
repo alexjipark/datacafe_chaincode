@@ -57,7 +57,7 @@ func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args [
 
 func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-	var remainBean4Sender, newBean4Receiver uint64
+	var remainBean4Sender, newBean4Receiver int
 
 	beanLogger.Debug("=============== transferBean =================")
 	if len(args) != 3 {
@@ -92,11 +92,12 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	newBean4Receiver = recvBean + uBeanAmount
 
 	// Store new Bean Amounts
-	err = stub.PutState(sendAddr, []byte(strconv.Itoa(remainBean4Sender)))
+	err = stub.PutState(sendAddr, []byte(strconv.FormatUint(remainBean4Sender,10)))
 	if err != nil {
 		return nil, errors.New("Error in putting State with sendAddress")
 	}
-	err = stub.PutState(recvAddr, []byte(strconv.Itoa(newBean4Receiver)))
+	//err = stub.PutState(recvAddr, []byte(strconv.Itoa(int64(newBean4Receiver))))
+	err = stub.PutState(recvAddr, []byte(strconv.FormatUint(newBean4Receiver,10)))
 	if err != nil {
 		// [AJ] Problem : what if PutState with sendAddr
 		return nil, errors.New("Error in putting State with recvAddress")

@@ -57,7 +57,7 @@ func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args [
 
 func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-	var remainBean4Sender, newBean4Receiver int64
+	var remainBean4Sender, newBean4Receiver uint64
 
 	beanLogger.Debug("=============== transferBean =================")
 	if len(args) != 3 {

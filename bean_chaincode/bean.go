@@ -175,8 +175,7 @@ func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 //	beanLogger.Debug("Entered Query func..")
 	var jsonResp string
 	if function == "getBeanBalance" {
-		beanBytes, _ := bc.getBeanBalance(stub, args)
-		jsonResp = "{\"Address\":\"" + string(args[0]) + "\",\"BeanAmount\":\"" + string(beanBytes) + "\"}"
+		jsonResp, _ = bc.getBeanBalance(stub, args)
 	}
 	if jsonResp == "" {
 		return nil, errors.New("Received Unknown Function Query")

@@ -53,6 +53,33 @@ func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args [
 	return beanBytes, nil
 }
 
+func (Bc *BeanChaincode) depositBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	if len(args) != 2 {
+		return nil, errors.New("Incorrect number of arguments. Expected 2..")
+	}
+	targetAddr := args[0]
+	beanAmount,err := strconv.Atoi(args[1])
+	if err != nil {
+		return nil, err
+	}
+	currentBeanBytes, err := stub.GetState(targetAddr)
+	var currentBean int
+	if err != nil {
+		//return nil, errors.New("Error in Getting current BeanBytes")
+		currentBean = 0
+	} else {
+		currentBean,_ = strconv.Atoi(string(currentBeanBytes))
+	}
+	// assign new bean
+	err = stub.PutState(targetAddr, []byte(strconv.Itoa(currentBean+beanAmount)))
+	if err != nil {
+		return nil, errors.New("Error in Putting new BeanBytes")
+	}
+
+	return nil, nil
+}
+
+
 func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	var remainBean4Sender, newBean4Receiver int
@@ -114,6 +141,8 @@ func (bc *BeanChaincode) Invoke(stub shim.ChaincodeStubInterface,
 
 	if function == "transferBean" {
 		return bc.transferBean(stub, args)
+	} else if function == "depositBean" {
+		return bc.depositBean(stub, args)
 	}
 
 	return nil, errors.New("Received Unknown Function Invokation")

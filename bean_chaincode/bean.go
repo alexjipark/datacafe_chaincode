@@ -125,11 +125,20 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	if err != nil {
 		return nil, errors.New("Error in putting State with sendAddress")
 	}
+	err = stub.SetEvent("BeanChanged", []byte(sendAddr))
+	if err != nil {
+		fmt.Printf("Error in Setting event for Addr[%x]\n", sendAddr)
+	}
+
 	//err = stub.PutState(recvAddr, []byte(strconv.FormatUint(newBean4Receiver,10)))
 	err = stub.PutState(recvAddr, []byte(strconv.Itoa(newBean4Receiver)))
 	if err != nil {
 		// [AJ] Problem : what if PutState with sendAddr
 		return nil, errors.New("Error in putting State with recvAddress")
+	}
+	err = stub.SetEvent("BeanChanged", []byte(recvAddr))
+	if err != nil {
+		fmt.Printf("Error in Setting event for Addr[%x]", recvAddr)
 	}
 
 	return nil, nil
@@ -151,12 +160,14 @@ func (bc *BeanChaincode) Invoke(stub shim.ChaincodeStubInterface,
 func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 		function string, args []string) ([]byte, error) {
 //	beanLogger.Debug("Entered Query func..")
-
+	var jsonResp string
 	if function == "getBeanBalance" {
-		return bc.getBeanBalance(stub, args)
+		beanBytes, _ := bc.getBeanBalance(stub, args)
+		jsonResp = "{\"Address\":\"" + string(args[0]) + "\",\"BeanAmount\":\"" + string(beanBytes) + "\"}"
 	}
 
-	return nil, errors.New("Received Unknown Function Query")
+	fmt.Printf("Query Response:%s\n", jsonResp)
+	return []byte(jsonResp), errors.New("Received Unknown Function Query")
 }
 
 func main() {

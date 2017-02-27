@@ -19,26 +19,25 @@ package main
 import (
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"fmt"
-	"github.com/op/go-logging"
 	"errors"
 	"strconv"
 	"encoding/binary"
 )
 
-var beanLogger = logging.MustGetLogger("bean_cc")
+//var beanLogger = logging.MustGetLogger("bean_cc")
 
 type BeanChaincode struct {
 }
 
 func (bc *BeanChaincode) Init(stub shim.ChaincodeStubInterface,
 		function string, args []string) ([]byte, error) {
-	beanLogger.Debug("Entered Init func..")
+//	beanLogger.Debug("Entered Init func..")
 	return nil, nil
 }
 
 
 func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	beanLogger.Debug("=============== getBeanBalance ===============")
+//	beanLogger.Debug("=============== getBeanBalance ===============")
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expected 1..")
 	}
@@ -51,7 +50,7 @@ func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args [
 	}
 
 	// binary.BigEndian.Uint64(mySlice)
-	beanLogger.Info("Address[%x]'s Balance : %d", requestAddress, binary.BigEndian.Uint64(beanBytes))
+//	beanLogger.Info("Address[%x]'s Balance : %d", requestAddress, binary.BigEndian.Uint64(beanBytes))
 	return beanBytes, nil
 }
 
@@ -59,7 +58,7 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 
 	var remainBean4Sender, newBean4Receiver uint64
 
-	beanLogger.Debug("=============== transferBean =================")
+//	beanLogger.Debug("=============== transferBean =================")
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expected 3..")
 	}
@@ -79,7 +78,7 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 
 	recvBeanBytes, err := stub.GetState(recvAddr)
 	if err != nil {
-		beanLogger.Debug("Address[%x] doesn't have the stored balance..", recvAddr)
+//		beanLogger.Debug("Address[%x] doesn't have the stored balance..", recvAddr)
 		recvBeanBytes = []byte(strconv.Itoa(0))
 	}
 	recvBean := binary.BigEndian.Uint64(recvBeanBytes)
@@ -108,7 +107,7 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 
 func (bc *BeanChaincode) Invoke(stub shim.ChaincodeStubInterface,
 		function string, args []string) ([]byte, error) {
-	beanLogger.Debug("Entered Invoke func..")
+//	beanLogger.Debug("Entered Invoke func..")
 
 	if function == "transferBean" {
 		return bc.transferBean(stub, args)
@@ -119,7 +118,7 @@ func (bc *BeanChaincode) Invoke(stub shim.ChaincodeStubInterface,
 
 func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 		function string, args []string) ([]byte, error) {
-	beanLogger.Debug("Entered Query func..")
+//	beanLogger.Debug("Entered Query func..")
 
 	if function == "getBeanBalance" {
 		return bc.getBeanBalance(stub, args)

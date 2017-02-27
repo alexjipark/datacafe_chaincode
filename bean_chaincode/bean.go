@@ -173,16 +173,15 @@ func (bc *BeanChaincode) Invoke(stub shim.ChaincodeStubInterface,
 func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 		function string, args []string) ([]byte, error) {
 //	beanLogger.Debug("Entered Query func..")
-	var jsonResp string
+	var jsonRespByte []byte
 	if function == "getBeanBalance" {
-		jsonResp, _ = bc.getBeanBalance(stub, args)
+		jsonRespByte, _ = bc.getBeanBalance(stub, args)
 	}
-	if jsonResp == "" {
+	if len(jsonRespByte) == 0 {
 		return nil, errors.New("Received Unknown Function Query")
 	} else {
-		fmt.Printf("Query Response:%s\n", jsonResp)
-		return []byte(jsonResp), nil
-
+		fmt.Printf("Query Response:%s\n", string(jsonRespByte))
+		return jsonRespByte, nil
 	}
 }
 

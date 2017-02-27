@@ -21,9 +21,15 @@ import (
 	"fmt"
 	"errors"
 	"strconv"
+	"encoding/json"
 )
 
 //var beanLogger = logging.MustGetLogger("bean_cc")
+
+type Resp_AccountInfo struct {
+	Address	string
+	Bean 	int
+}
 
 type BeanChaincode struct {
 }
@@ -47,10 +53,17 @@ func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args [
 	if err != nil {
 		return []byte(strconv.Itoa(0)), errors.New("No BeanBalance stored in the ledger")
 	}
+	bean,_ := strconv.Atoi(string(beanBytes))
+	resp_info := &Resp_AccountInfo{
+		Address: requestAddress,
+		Bean: bean,
+	}
+	resp_bytes, _ := json.Marshal(resp_info)
+	return resp_bytes
 
 	// binary.BigEndian.Uint64(mySlice)
 //	beanLogger.Info("Address[%x]'s Balance : %d", requestAddress, binary.BigEndian.Uint64(beanBytes))
-	return beanBytes, nil
+	//return beanBytes, nil
 }
 
 func (Bc *BeanChaincode) depositBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {

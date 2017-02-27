@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"errors"
 	"strconv"
-	"encoding/binary"
 )
 
 //var beanLogger = logging.MustGetLogger("bean_cc")
@@ -65,7 +64,8 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 
 	sendAddr := args[0]
 	recvAddr := args[1]
-	beanAmount, err := strconv.ParseInt(args[2], 10, 64)
+	//beanAmount, err := strconv.ParseInt(args[2], 10, 64)
+	beanAmount, err := strconv.Atoi(args[2])
 	if err != nil {
 		return nil, errors.New("Error in Coverting beanAmount")
 	}
@@ -74,29 +74,32 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	if err != nil {
 		return nil, errors.New("Incorrect Address for Sender")
 	}
-	sendBean := binary.BigEndian.Uint64(sendBeanBytes)
+	//sendBean := binary.BigEndian.Uint64(sendBeanBytes)
+	sendBean,_ := strconv.Atoi(string(sendBeanBytes))
 
 	recvBeanBytes, err := stub.GetState(recvAddr)
 	if err != nil {
 //		beanLogger.Debug("Address[%x] doesn't have the stored balance..", recvAddr)
 		recvBeanBytes = []byte(strconv.Itoa(0))
 	}
-	recvBean := binary.BigEndian.Uint64(recvBeanBytes)
+	//recvBean := binary.BigEndian.Uint64(recvBeanBytes)
+	recvBean,_ := strconv.Atoi(string(recvBeanBytes))
 
-	uBeanAmount := uint64(beanAmount)
-	if sendBean < uBeanAmount {
+	//uBeanAmount := uint64(beanAmount)
+	if sendBean < beanAmount {
 		return nil, errors.New("Not enough for Sender..")
 	}
-	remainBean4Sender = sendBean - uBeanAmount
-	newBean4Receiver = recvBean + uBeanAmount
+	remainBean4Sender = sendBean - beanAmount
+	newBean4Receiver = recvBean + beanAmount
 
 	// Store new Bean Amounts
-	err = stub.PutState(sendAddr, []byte(strconv.FormatUint(remainBean4Sender,10)))
+	//err = stub.PutState(sendAddr, []byte(strconv.FormatUint(remainBean4Sender,10)))
+	err = stub.PutState(sendAddr, []byte(strconv.Itoa(remainBean4Sender)))
 	if err != nil {
 		return nil, errors.New("Error in putting State with sendAddress")
 	}
-	//err = stub.PutState(recvAddr, []byte(strconv.Itoa(int64(newBean4Receiver))))
-	err = stub.PutState(recvAddr, []byte(strconv.FormatUint(newBean4Receiver,10)))
+	//err = stub.PutState(recvAddr, []byte(strconv.FormatUint(newBean4Receiver,10)))
+	err = stub.PutState(recvAddr, []byte(strconv.Itoa(newBean4Receiver)))
 	if err != nil {
 		// [AJ] Problem : what if PutState with sendAddr
 		return nil, errors.New("Error in putting State with recvAddress")
@@ -125,7 +128,6 @@ func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 	}
 
 	return nil, errors.New("Received Unknown Function Query")
-
 }
 
 func main() {

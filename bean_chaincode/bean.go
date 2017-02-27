@@ -59,7 +59,7 @@ func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args [
 		Bean: bean,
 	}
 	resp_bytes, _ := json.Marshal(resp_info)
-	return resp_bytes
+	return resp_bytes, nil
 
 	// binary.BigEndian.Uint64(mySlice)
 //	beanLogger.Info("Address[%x]'s Balance : %d", requestAddress, binary.BigEndian.Uint64(beanBytes))

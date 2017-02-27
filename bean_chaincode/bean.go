@@ -165,9 +165,13 @@ func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 		beanBytes, _ := bc.getBeanBalance(stub, args)
 		jsonResp = "{\"Address\":\"" + string(args[0]) + "\",\"BeanAmount\":\"" + string(beanBytes) + "\"}"
 	}
+	if jsonResp == "" {
+		return nil, errors.New("Received Unknown Function Query")
+	} else {
+		fmt.Printf("Query Response:%s\n", jsonResp)
+		return []byte(jsonResp), nil
 
-	fmt.Printf("Query Response:%s\n", jsonResp)
-	return []byte(jsonResp), errors.New("Received Unknown Function Query")
+	}
 }
 
 func main() {

@@ -36,6 +36,15 @@ type adapter struct {
 	chaincodeID        string
 }
 
+type rewardMsg struct {
+	buyerAddr 	string
+	rewardBean	uint32
+	buyerMsg  	string	
+}
+
+func requestNotiforReward(addr string, bean uint32, msg string) {
+}
+
 //GetInterestedEvents implements consumer.EventAdapter interface for registering interested events
 func (a *adapter) GetInterestedEvents() ([]*pb.Interest, error) {
 	if a.chaincodeID != "" {

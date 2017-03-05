@@ -30,6 +30,7 @@ import (
 	"net/http"
 	"io"
 	"flag"
+	"encoding/binary"
 )
 
 type adapter struct {
@@ -47,20 +48,67 @@ type loginMsg struct {
 }
 
 
-type details  struct {
+type Details  struct {
 	BuyerAddr 	string	`json:"buyerAddr"`
+	RewardAddr	string	`json:"rewardAddr"`
 	RewardBean	uint32	`json:"rewardBean"`
 	BuyerMsg  	string	`json:"buyerMsg,omitempty"`
 }
 
 type rewardMsg struct {
 	User_hash 	string		`json:"user_hash"`
-	Data 		details	`json:"data"`
+	Data 		Details	`json:"data"`
 }
 
+type T struct {
+	A string
+	B string
+}
+func testExample() {
+	// Create a struct and write it.
+	t := T{A: "0xEEFFEEFF", B: "3.14"}
+
+	buf := &bytes.Buffer{}
+	err := binary.Write(buf, binary.BigEndian, t)
+	if err != nil {
+		panic(err)
+	}
+	//fmt.Println([]byte(buf.Bytes()))//.Bytes())
+	fmt.Println(buf.Bytes())
+
+	// Read into an empty struct.
+	t = T{}
+	err = binary.Read(buf, binary.BigEndian, &t)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("%x %f", t.A, t.B)
+}
+
+func testStructBytes(){
+
+	//testExample()
+
+	testVal := Details{
+		BuyerAddr:"testBuyerAddr",
+		RewardBean: 10,
+		BuyerMsg:"From The Hospital",
+	}
+
+	b, err := json.Marshal(testVal)
+	if err == nil {
+		var recvVal Details
+		err = json.Unmarshal(b,&recvVal)
+		if err == nil {
+			fmt.Print(recvVal)
+		}
+
+	}
+
+}
 
 func requestNotiforReward(rewardAddr string, buyerAddr string, bean uint32, msg string) {
-	dataDetails := details {BuyerAddr: buyerAddr, RewardBean:bean, BuyerMsg: msg}
+	dataDetails := Details {BuyerAddr: buyerAddr, RewardBean:bean, BuyerMsg: msg}
 	reqRewardMsg := rewardMsg{
 		User_hash:rewardAddr,
 		Data: dataDetails,
@@ -165,13 +213,14 @@ func createEventClient(eventAddress string, listenToRejections bool, cid string)
 	return adapter
 }
 
+
 //requestNotiforReward(addr string, bean uint32, msg string)
 
 func main() {
 
 	// Test..
 	// requestNotiforReward("nuclecker27", "supernova27", 200, "Bought from the one..")
-
+	testStructBytes()
 
 	var eventAddress string
 	var listenToRejections bool
@@ -214,8 +263,30 @@ func main() {
 			fmt.Printf("Received chaincode event\n")
 			fmt.Printf("------------------------\n")
 			fmt.Printf("Chaincode Event:%v\n", ce)
+
+			// ce.ChaincodeEvent.EventName
+			processChaincodeEvent(ce.ChaincodeEvent)
 		}
 	}
-
-
+	/*
+	Received chaincode event
+	------------------------
+	Chaincode Event:&{
+		chaincodeID:"b5e36a896c6178d13314fd91a831b61d3b4cf389632478fa1474ffe432697b76ca1234cb80f57491a9c5cc70e3b51bf625118fc2422ece91ce5ca6664f1fa104"
+		txID:"a0168b57-35b7-47d9-b03e-eb8397f28b31"
+		eventName:"BeanChanged"
+		payload:"def" }
+	*/
+}
+//func requestNotiforReward(rewardAddr string, buyerAddr string, bean uint32, msg string) {
+func processChaincodeEvent(ce *pb.ChaincodeEvent){
+	if ce.EventName == "BeanChanged" {
+		var eventDetails Details
+		err := json.Unmarshal(ce.Payload, &eventDetails)
+		if err != nil {
+			fmt.Errorf("Error in unmarshalling payload..%s", err)
+			return
+		}
+		requestNotiforReward(eventDetails.RewardAddr, eventDetails.BuyerAddr, eventDetails.RewardBean, eventDetails.BuyerMsg)
+	}
 }

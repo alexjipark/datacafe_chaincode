@@ -27,8 +27,8 @@ import (
 //var beanLogger = logging.MustGetLogger("bean_cc")
 
 type Resp_AccountInfo struct {
-	Address	string
-	Bean 	int
+	Address	string	`json:"address"`
+	Bean 	int	`json:"bean"`
 }
 
 type BeanChaincode struct {
@@ -37,9 +37,112 @@ type BeanChaincode struct {
 func (bc *BeanChaincode) Init(stub shim.ChaincodeStubInterface,
 		function string, args []string) ([]byte, error) {
 //	beanLogger.Debug("Entered Init func..")
+
+	err := stub.CreateTable("BeanTransaction", []*shim.ColumnDefinition{
+		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:false},
+		&shim.ColumnDefinition{Name:"SendAddress", Type: shim.ColumnDefinition_STRING, Key:false},
+		&shim.ColumnDefinition{Name:"RecvAddress", Type: shim.ColumnDefinition_STRING, Key:true},
+		&shim.ColumnDefinition{Name:"TransferBean", Type: shim.ColumnDefinition_INT32, Key:false},
+		&shim.ColumnDefinition{Name:"Certificate", Type: shim.ColumnDefinition_BYTES, Key:false},
+	})
+	if err != nil {
+		return nil, errors.New("Failed creating BeanTransaction Table..")
+	}
+
 	return nil, nil
 }
 
+func (bc *BeanChaincode) checkCallerCert (stub shim.ChaincodeStubInterface, certificate []byte) (bool, error) {
+	// ref : asset_management.go
+	sigma, err := stub.GetCallerMetadata()
+	if err != nil {
+		return false, errors.New("Failed Getting Metadata..")
+	}
+	// Transaction payload, which is a `ChaincodeSpec` defined in fabric/protos/chaincode.proto
+	payload, err := stub.GetPayload()
+	if err != nil {
+		return false, errors.New("Failed Getting Payload..")
+	}
+	// Transaction Binding?!..
+	binding, err := stub.GetBinding()
+	if err != nil {
+		return false, errors.New("Failed Getting Binding..")
+	}
+
+	// certificate, signature, messages => Verify Signautre..
+	res, err := stub.VerifySignature(certificate, sigma, append(payload,binding...),)
+	if err != nil {
+		return false, errors.New("Failed Verifying Signature..")
+	}
+	return res, nil
+}
+
+func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	sendAddr := args[0]
+	recvAddr := args[1]
+	transferBean,err := strconv.Atoi(args[2])
+	if err != nil {
+		return nil, errors.New("Invalid value for transferBean")
+	}
+	timeStamp, err := stub.GetTxTimestamp()
+	if err != nil {
+		return nil, errors.New("Failed to get Tx Timestamp..")
+	}
+	cert, err := stub.GetCallerMetadata()
+	if err != nil {
+		return nil, errors.New("Error Getting Caller Metadata")
+	}
+
+	ok, err := stub.InsertRow("BeanTransaction", shim.Row {
+		Columns: []*shim.Column {
+			&shim.Column{Value: &shim.Column_Int64{Int64:timeStamp.Seconds}},
+			&shim.Column{Value:&shim.Column_String_{String_:sendAddr}},
+			&shim.Column{Value:&shim.Column_String_{String_:recvAddr}},
+			&shim.Column{Value:&shim.Column_Int32{Int32:transferBean}},
+			&shim.Column{Value: &shim.Column_Bytes{Bytes: cert}}},
+	})
+	if !ok && err == nil {
+		return nil, errors.New("BeanTransaction was already assigned..")
+	}
+
+	return nil, nil
+}
+
+func (bc *BeanChaincode) queryAndDeleteTransaction (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	recvAddr := args[0]
+
+	var columns []shim.Column
+	col1 := shim.Column{Value:&shim.Column_String_{String_:recvAddr}}
+	columns = append(columns, col1)
+
+	row, err := stub.GetRow("BeanTransaction", columns)
+	if err != nil {
+		return nil, errors.New("Error Getting Row from the Table..")
+	}
+	prvCert := row.Columns[4].GetBytes()
+	if len(prvCert) == 0 {
+		return nil, errors.New("Invalid Previous Certificate stored in the Table..")
+	}
+
+	ok, err := bc.checkCallerCert(stub, prvCert)
+	if err != nil {
+		return nil, errors.New("Error occured when checking Caller's Certificate")
+	}
+	if ok == false {
+		return nil, errors.New("Invalid Caller's Cert")
+	}
+
+	//Delete the selected column..
+	err = stub.DeleteRow("BeanTransaction",
+				[]shim.Column{shim.Column{Value: &shim.Column_String_{String_: recvAddr}}})
+	if err != nil {
+		return nil, errors.New("Error Deleting the Selected Rows..")
+	}
+	return nil,nil
+
+}
 
 func (bc *BeanChaincode) getBeanBalance(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 //	beanLogger.Debug("=============== getBeanBalance ===============")

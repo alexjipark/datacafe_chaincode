@@ -20,12 +20,16 @@ under the License.
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
 	"github.com/hyperledger/fabric/events/consumer"
 	pb "github.com/hyperledger/fabric/protos"
+	"bytes"
+	"encoding/json"
+	"net/http"
+	"io"
+	"flag"
 )
 
 type adapter struct {
@@ -36,13 +40,73 @@ type adapter struct {
 	chaincodeID        string
 }
 
-type rewardMsg struct {
-	buyerAddr 	string
-	rewardBean	uint32
-	buyerMsg  	string	
+type loginMsg struct {
+	Name 		string	`json:"name"`
+	Secret 		string	`json:"secret"`
+	TargetAddr	string	`json:"targetAddr, omitempty"`
 }
 
-func requestNotiforReward(addr string, bean uint32, msg string) {
+
+type details  struct {
+	BuyerAddr 	string	`json:"buyerAddr"`
+	RewardBean	uint32	`json:"rewardBean"`
+	BuyerMsg  	string	`json:"buyerMsg,omitempty"`
+}
+
+type rewardMsg struct {
+	User_hash 	string		`json:"user_hash"`
+	Data 		details	`json:"data"`
+}
+
+
+func requestNotiforReward(rewardAddr string, buyerAddr string, bean uint32, msg string) {
+	dataDetails := details {BuyerAddr: buyerAddr, RewardBean:bean, BuyerMsg: msg}
+	reqRewardMsg := rewardMsg{
+		User_hash:rewardAddr,
+		Data: dataDetails,
+	}
+
+	buffer := new(bytes.Buffer)
+	json.NewEncoder(buffer).Encode(reqRewardMsg)
+	//res, err := http.Post("http://www.mydata-market.com/v1/push/message",
+	//	"application/json; charset=utf-8", buffer)
+
+	fmt.Printf(buffer.String())
+	url := "http://www.mydata-market.com/v1/push/message"
+	request, err := http.NewRequest("POST", url, buffer)
+	request.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		fmt.Print("Error in client Do Request..")
+		return
+	}
+	defer response.Body.Close()
+
+	io.Copy(os.Stdout, response.Body)
+}
+
+func testHttpJsonPost() {
+	login := &loginMsg{Name:"supernova27", Secret:"YmhtZslzEWgh", TargetAddr:"supernova27"}
+	buffer := new(bytes.Buffer)
+	json.NewEncoder(buffer).Encode(login)
+	fmt.Printf(buffer.String())
+	//http.Header.Set("Content-Type", "application/json")
+	//res, err := http.Post("http://52.197.104.234:8080/getBeanBalance", "application/json;", buffer)
+	url := "http://52.197.104.234:8080/getBeanBalance"
+	request, err := http.NewRequest("POST", url, buffer)
+	request.Header.Set("Content-Type","application/json")
+
+	client := &http.Client{}
+	response, err := client.Do(request)
+	if err != nil {
+		fmt.Print("Error in Client Do Request..")
+	}
+	defer response.Body.Close()
+
+	io.Copy(os.Stdout, response.Body)
+
 }
 
 //GetInterestedEvents implements consumer.EventAdapter interface for registering interested events
@@ -101,7 +165,14 @@ func createEventClient(eventAddress string, listenToRejections bool, cid string)
 	return adapter
 }
 
+//requestNotiforReward(addr string, bean uint32, msg string)
+
 func main() {
+
+	// Test..
+	// requestNotiforReward("nuclecker27", "supernova27", 200, "Bought from the one..")
+
+
 	var eventAddress string
 	var listenToRejections bool
 	var chaincodeID string
@@ -145,4 +216,6 @@ func main() {
 			fmt.Printf("Chaincode Event:%v\n", ce)
 		}
 	}
+
+
 }

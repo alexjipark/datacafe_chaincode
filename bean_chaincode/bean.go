@@ -34,14 +34,16 @@ type Resp_AccountInfo struct {
 type BeanChaincode struct {
 }
 
+var TableforBeanTransation = "BeanTransaction"
+
 func (bc *BeanChaincode) Init(stub shim.ChaincodeStubInterface,
 		function string, args []string) ([]byte, error) {
 //	beanLogger.Debug("Entered Init func..")
 
 	err := stub.CreateTable("BeanTransaction", []*shim.ColumnDefinition{
-		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:false},
-		&shim.ColumnDefinition{Name:"SendAddress", Type: shim.ColumnDefinition_STRING, Key:false},
+		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:true},
 		&shim.ColumnDefinition{Name:"RecvAddress", Type: shim.ColumnDefinition_STRING, Key:true},
+		&shim.ColumnDefinition{Name:"SendAddress", Type: shim.ColumnDefinition_STRING, Key:false},
 		&shim.ColumnDefinition{Name:"TransferBean", Type: shim.ColumnDefinition_INT32, Key:false},
 		&shim.ColumnDefinition{Name:"Certificate", Type: shim.ColumnDefinition_BYTES, Key:false},
 	})
@@ -77,6 +79,41 @@ func (bc *BeanChaincode) checkCallerCert (stub shim.ChaincodeStubInterface, cert
 	return res, nil
 }
 
+func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+
+	recvAddr := args[0]
+
+	var columns []shim.Column
+	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
+	columns = append(columns, col1)
+
+	rowChannel, err := stub.GetRows(TableforBeanTransation, columns)
+	if err != nil {
+		return nil, fmt.Errorf("Failed retrieving Transfer Record")
+	}
+	// Timestamp, RecvAddress, SendAddress, TransferBean, Certificate
+
+	var rows []shim.Row
+	for {
+		select {
+		case row, ok := <- rowChannel :
+			if !ok {
+				rowChannel = nil
+			} else {
+				rows = append(rows, row)
+			}
+		}
+		if rowChannel == nil {
+			break
+		}
+	}
+	jsonRows, err := json.Marshal(rows)
+	if err != nil {
+		return nil, fmt.Errorf("queryTransactions operation failed. Error marshaling JSON: %s", err)
+	}
+	return jsonRows, nil
+}
+
 func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	sendAddr := args[0]
@@ -94,11 +131,11 @@ func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface,
 		return nil, errors.New("Error Getting Caller Metadata")
 	}
 
-	ok, err := stub.InsertRow("BeanTransaction", shim.Row {
+	ok, err := stub.InsertRow(TableforBeanTransation, shim.Row {
 		Columns: []*shim.Column {
 			&shim.Column{Value: &shim.Column_Int64{Int64:timeStamp.Seconds}},
-			&shim.Column{Value:&shim.Column_String_{String_:sendAddr}},
 			&shim.Column{Value:&shim.Column_String_{String_:recvAddr}},
+			&shim.Column{Value:&shim.Column_String_{String_:sendAddr}},
 			&shim.Column{Value:&shim.Column_Int32{Int32:transferBean}},
 			&shim.Column{Value: &shim.Column_Bytes{Bytes: cert}}},
 	})
@@ -108,6 +145,8 @@ func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface,
 
 	return nil, nil
 }
+
+
 
 func (bc *BeanChaincode) queryAndDeleteTransaction (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
@@ -257,6 +296,13 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		fmt.Printf("Error in Setting event for Addr[%x]", recvAddr)
 	}
 
+	//====================== Update Table ====================//
+	_, err = bc.assignNewTransaction(stub, args)
+	if err != nil {
+		//fmt.Printf("Error in Assign New Transaction in the Table..")
+		return nil, errors.New("Error in Assign New Transaction in the Table..")
+	}
+
 	return nil, nil
 }
 
@@ -268,6 +314,8 @@ func (bc *BeanChaincode) Invoke(stub shim.ChaincodeStubInterface,
 		return bc.transferBean(stub, args)
 	} else if function == "depositBean" {
 		return bc.depositBean(stub, args)
+	} else if function =="transferMultipleBean" {
+		// 1 to N..
 	}
 
 	return nil, errors.New("Received Unknown Function Invokation")
@@ -279,7 +327,10 @@ func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 	var jsonRespByte []byte
 	if function == "getBeanBalance" {
 		jsonRespByte, _ = bc.getBeanBalance(stub, args)
+	} else if function == "getTransationList" {
+		jsonRespByte, _ = bc.queryTransactions(stub, args)
 	}
+
 	if len(jsonRespByte) == 0 {
 		return nil, errors.New("Received Unknown Function Query")
 	} else {

@@ -136,7 +136,7 @@ func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface,
 			&shim.Column{Value: &shim.Column_Int64{Int64:timeStamp.Seconds}},
 			&shim.Column{Value:&shim.Column_String_{String_:recvAddr}},
 			&shim.Column{Value:&shim.Column_String_{String_:sendAddr}},
-			&shim.Column{Value:&shim.Column_Int32{Int32:transferBean}},
+			&shim.Column{Value:&shim.Column_Int32{Int32:int32(transferBean)}},
 			&shim.Column{Value: &shim.Column_Bytes{Bytes: cert}}},
 	})
 	if !ok && err == nil {

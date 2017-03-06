@@ -41,8 +41,8 @@ func (bc *BeanChaincode) Init(stub shim.ChaincodeStubInterface,
 //	beanLogger.Debug("Entered Init func..")
 
 	err := stub.CreateTable("BeanTransaction", []*shim.ColumnDefinition{
-		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:false},
 		&shim.ColumnDefinition{Name:"RecvAddress", Type: shim.ColumnDefinition_STRING, Key:true},
+		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:false},
 		&shim.ColumnDefinition{Name:"SendAddress", Type: shim.ColumnDefinition_STRING, Key:false},
 		&shim.ColumnDefinition{Name:"TransferBean", Type: shim.ColumnDefinition_INT32, Key:false},
 		&shim.ColumnDefinition{Name:"Certificate", Type: shim.ColumnDefinition_BYTES, Key:false},
@@ -87,6 +87,14 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
 	columns = append(columns, col1)
 
+	row, err := stub.GetRow("", columns)
+	if err != nil {
+		return nil, fmt.Errorf("getRow operation failed. %s", err)
+	}
+	rowString := fmt.Sprintf("%s", row)
+	return []byte(rowString), nil
+
+	/*
 	rowChannel, err := stub.GetRows(TableforBeanTransation, columns)
 	if err != nil {
 		return nil, fmt.Errorf("Failed retrieving Transfer Record")
@@ -107,11 +115,13 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 			break
 		}
 	}
+
 	jsonRows, err := json.Marshal(rows)
 	if err != nil {
 		return nil, fmt.Errorf("queryTransactions operation failed. Error marshaling JSON: %s", err)
 	}
 	return jsonRows, nil
+	*/
 }
 
 func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
@@ -133,8 +143,8 @@ func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface,
 
 	ok, err := stub.InsertRow(TableforBeanTransation, shim.Row {
 		Columns: []*shim.Column {
-			&shim.Column{Value: &shim.Column_Int64{Int64:timeStamp.Seconds}},
 			&shim.Column{Value:&shim.Column_String_{String_:recvAddr}},
+			&shim.Column{Value: &shim.Column_Int64{Int64:timeStamp.Seconds}},
 			&shim.Column{Value:&shim.Column_String_{String_:sendAddr}},
 			&shim.Column{Value:&shim.Column_Int32{Int32:int32(transferBean)}},
 			&shim.Column{Value: &shim.Column_Bytes{Bytes: cert}}},

@@ -42,7 +42,7 @@ func (bc *BeanChaincode) Init(stub shim.ChaincodeStubInterface,
 
 	err := stub.CreateTable("BeanTransaction", []*shim.ColumnDefinition{
 		&shim.ColumnDefinition{Name:"RecvAddress", Type: shim.ColumnDefinition_STRING, Key:true},
-		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:false},
+		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:true},
 		&shim.ColumnDefinition{Name:"SendAddress", Type: shim.ColumnDefinition_STRING, Key:false},
 		&shim.ColumnDefinition{Name:"TransferBean", Type: shim.ColumnDefinition_INT32, Key:false},
 		&shim.ColumnDefinition{Name:"Certificate", Type: shim.ColumnDefinition_BYTES, Key:false},
@@ -87,15 +87,17 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
 	columns = append(columns, col1)
 
+	/*
 	row, err := stub.GetRow("BeanTransaction", columns)
 	if err != nil {
 		return nil, fmt.Errorf("getRow operation failed. %s", err)
 	}
 	rowString := fmt.Sprintf("%s", row)
 	return []byte(rowString), nil
+	*/
 
-	/*
-	rowChannel, err := stub.GetRows(TableforBeanTransation, columns)
+
+	rowChannel, err := stub.GetRows("BeanTransaction", columns)
 	if err != nil {
 		return nil, fmt.Errorf("Failed retrieving Transfer Record")
 	}
@@ -121,7 +123,7 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 		return nil, fmt.Errorf("queryTransactions operation failed. Error marshaling JSON: %s", err)
 	}
 	return jsonRows, nil
-	*/
+
 }
 
 func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {

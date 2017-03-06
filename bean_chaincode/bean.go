@@ -81,7 +81,9 @@ func (bc *BeanChaincode) checkCallerCert (stub shim.ChaincodeStubInterface, cert
 
 func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-//	recvAddr := args[0]
+	recvAddr := args[0]
+	fromPeriod := args[1]
+	toPeriod := args[2]
 
 	var columns []shim.Column
 //	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
@@ -110,7 +112,11 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 			if !ok {
 				rowChannel = nil
 			} else {
-				rows = append(rows, row)
+				if recvAddr == row.Columns[0].GetString_() {
+					if fromPeriod == "0" || toPeriod == "0" {
+						rows = append(rows, row)
+					}
+				}
 			}
 		}
 		if rowChannel == nil {

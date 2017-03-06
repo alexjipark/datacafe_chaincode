@@ -41,8 +41,8 @@ func (bc *BeanChaincode) Init(stub shim.ChaincodeStubInterface,
 //	beanLogger.Debug("Entered Init func..")
 
 	err := stub.CreateTable("BeanTransaction", []*shim.ColumnDefinition{
-		&shim.ColumnDefinition{Name:"RecvAddress", Type: shim.ColumnDefinition_STRING, Key:true},
-		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:true},
+		&shim.ColumnDefinition{Name:"RecvAddress", Type: shim.ColumnDefinition_STRING, Key:false},
+		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:false},
 		&shim.ColumnDefinition{Name:"SendAddress", Type: shim.ColumnDefinition_STRING, Key:false},
 		&shim.ColumnDefinition{Name:"TransferBean", Type: shim.ColumnDefinition_INT32, Key:false},
 		&shim.ColumnDefinition{Name:"Certificate", Type: shim.ColumnDefinition_BYTES, Key:false},
@@ -81,11 +81,11 @@ func (bc *BeanChaincode) checkCallerCert (stub shim.ChaincodeStubInterface, cert
 
 func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
-	recvAddr := args[0]
+//	recvAddr := args[0]
 
 	var columns []shim.Column
-	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
-	columns = append(columns, col1)
+//	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
+//	columns = append(columns, col1)
 
 	/*
 	row, err := stub.GetRow("BeanTransaction", columns)

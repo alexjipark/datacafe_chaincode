@@ -41,7 +41,7 @@ func (bc *BeanChaincode) Init(stub shim.ChaincodeStubInterface,
 //	beanLogger.Debug("Entered Init func..")
 
 	err := stub.CreateTable("BeanTransaction", []*shim.ColumnDefinition{
-		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:true},
+		&shim.ColumnDefinition{Name:"Timestamp", Type: shim.ColumnDefinition_INT64, Key:false},
 		&shim.ColumnDefinition{Name:"RecvAddress", Type: shim.ColumnDefinition_STRING, Key:true},
 		&shim.ColumnDefinition{Name:"SendAddress", Type: shim.ColumnDefinition_STRING, Key:false},
 		&shim.ColumnDefinition{Name:"TransferBean", Type: shim.ColumnDefinition_INT32, Key:false},

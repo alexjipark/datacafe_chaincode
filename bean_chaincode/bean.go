@@ -87,7 +87,7 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
 	columns = append(columns, col1)
 
-	row, err := stub.GetRow("", columns)
+	row, err := stub.GetRow("BeanTransaction", columns)
 	if err != nil {
 		return nil, fmt.Errorf("getRow operation failed. %s", err)
 	}
@@ -141,7 +141,7 @@ func (bc *BeanChaincode) assignNewTransaction (stub shim.ChaincodeStubInterface,
 		return nil, errors.New("Error Getting Caller Metadata")
 	}
 
-	ok, err := stub.InsertRow(TableforBeanTransation, shim.Row {
+	ok, err := stub.InsertRow("BeanTransaction", shim.Row {
 		Columns: []*shim.Column {
 			&shim.Column{Value:&shim.Column_String_{String_:recvAddr}},
 			&shim.Column{Value: &shim.Column_Int64{Int64:timeStamp.Seconds}},
@@ -337,7 +337,7 @@ func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 	var jsonRespByte []byte
 	if function == "getBeanBalance" {
 		jsonRespByte, _ = bc.getBeanBalance(stub, args)
-	} else if function == "getTransationList" {
+	} else if function == "getTransactionList" {
 		jsonRespByte, _ = bc.queryTransactions(stub, args)
 	}
 

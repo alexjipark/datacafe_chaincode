@@ -101,7 +101,7 @@ func convertTransactionToJson (row shim.Row) TransactionInfo {
 	var transaction TransactionInfo
 
 	transaction.SendAddress = row.Columns[2].GetString_()
-	transaction.TransferredBean = strconv.Itoa(row.Columns[3].GetInt32())
+	transaction.TransferredBean = strconv.Itoa(int(row.Columns[3].GetInt32()))
 	transaction.TransactionTime = strconv.FormatInt(row.Columns[2].GetInt64(), 10)
 
 	return transaction

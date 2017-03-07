@@ -40,8 +40,8 @@ type Resp_AccountInfo struct {
 */
 type TransactionInfo struct {
 	SendAddress		string	`json:"sendAddr"`
-	TransactionTime		string	`json:"transactionTime"`
-	TransferredBean		string	`json:"transferredBean"`
+	TransactionTime		int64	`json:"transactionTime"`
+	TransferredBean		int32	`json:"transferredBean"`
 }
 
 type TransactionList struct {
@@ -101,8 +101,10 @@ func convertTransactionToJson (row shim.Row) TransactionInfo {
 	var transaction TransactionInfo
 
 	transaction.SendAddress = row.Columns[2].GetString_()
-	transaction.TransferredBean = strconv.Itoa(int(row.Columns[3].GetInt32()))
-	transaction.TransactionTime = fmt.Sprintf("%d",row.Columns[2].GetInt64())//strconv.FormatInt(row.Columns[2].GetInt64(), 10)
+	//transaction.TransferredBean = strconv.Itoa(int(row.Columns[3].GetInt32()))
+	//transaction.TransactionTime = fmt.Sprintf("%d",row.Columns[2].GetInt64())//strconv.FormatInt(row.Columns[2].GetInt64(), 10)
+	transaction.TransferredBean = row.Columns[3].GetInt32()
+	transaction.TransactionTime = row.Columns[2].GetInt64()
 
 	return transaction
 }

@@ -111,9 +111,11 @@ func convertTransactionToJson (row shim.Row) TransactionInfo {
 
 func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
+	/*
 	recvAddr := args[0]
 	str_fromPeriod := args[1]
 	str_toPeriod := args[2]
+	*/
 
 	var columns []shim.Column
 //	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
@@ -135,7 +137,7 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 	}
 	// Timestamp, RecvAddress, SendAddress, TransferBean, Certificate
 
-	var transactions TransactionList
+	//var transactions TransactionList
 	var rows []shim.Row
 	for {
 		select {
@@ -150,7 +152,7 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 3	TransferBean	int32
 4	Certificate	Byte
 				 */
-
+/*
 				if recvAddr == row.Columns[0].GetString_() {
 					fromPeriod,_ := strconv.ParseInt(str_fromPeriod, 10, 64)
 					toPeriod,_ := strconv.ParseInt(str_toPeriod, 10, 64)
@@ -172,6 +174,8 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 						}
 					}
 				}
+*/
+				rows = append(rows, row)
 			}
 		}
 		if rowChannel == nil {
@@ -179,7 +183,7 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 		}
 	}
 
-	jsonRows, err := json.Marshal(transactions)
+	jsonRows, err := json.Marshal(rows)
 	if err != nil {
 		return nil, fmt.Errorf("queryTransactions operation failed. Error marshaling JSON: %s", err)
 	}

@@ -177,7 +177,7 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 		}
 	}
 
-	jsonRows, err := json.Marshal(rows)
+	jsonRows, err := json.Marshal(transactions)
 	if err != nil {
 		return nil, fmt.Errorf("queryTransactions operation failed. Error marshaling JSON: %s", err)
 	}

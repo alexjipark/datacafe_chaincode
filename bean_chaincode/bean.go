@@ -31,6 +31,24 @@ type Resp_AccountInfo struct {
 	Bean 	int	`json:"bean"`
 }
 
+/*
+0 	RecvAddres 	String
+1	Timestamp	int64(long)
+2	SendAddress	String
+3	TransferBean	int32
+4	Certificate	Byte
+*/
+type TransactionInfo struct {
+	SendAddress		string	`json:"sendAddr"`
+	TransactionTime		string	`json:"transactionTime"`
+	TransferredBean		string	`json:"transferredBean"`
+}
+
+type TransactionList struct {
+	Transactions	[]TransactionInfo	`json:"transactions"`
+}
+
+
 type BeanChaincode struct {
 }
 
@@ -79,11 +97,21 @@ func (bc *BeanChaincode) checkCallerCert (stub shim.ChaincodeStubInterface, cert
 	return res, nil
 }
 
+func convertTransactionToJson (row shim.Row) TransactionInfo {
+	var transaction TransactionInfo
+
+	transaction.SendAddress = row.Columns[2].GetString_()
+	transaction.TransferredBean = strconv.Itoa(row.Columns[3].GetInt32())
+	transaction.TransactionTime = strconv.FormatInt(row.Columns[2].GetInt64(), 10)
+
+	return transaction
+}
+
 func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	recvAddr := args[0]
-	fromPeriod := args[1]
-	toPeriod := args[2]
+	str_fromPeriod := args[1]
+	str_toPeriod := args[2]
 
 	var columns []shim.Column
 //	col1 := shim.Column {Value: &shim.Column_String_{String_:recvAddr}}
@@ -105,6 +133,7 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 	}
 	// Timestamp, RecvAddress, SendAddress, TransferBean, Certificate
 
+	var transactions TransactionList
 	var rows []shim.Row
 	for {
 		select {
@@ -112,9 +141,33 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 			if !ok {
 				rowChannel = nil
 			} else {
+				/*
+0 	RecvAddres 	String
+1	Timestamp	int64(long)
+2	SendAddress	String
+3	TransferBean	int32
+4	Certificate	Byte
+				 */
+
 				if recvAddr == row.Columns[0].GetString_() {
-					if fromPeriod == "0" || toPeriod == "0" {
-						rows = append(rows, row)
+					fromPeriod,_ := strconv.ParseInt(str_fromPeriod, 10, 64)
+					toPeriod,_ := strconv.ParseInt(str_toPeriod, 10, 64)
+					rowTimeStamp := row.Columns[1].GetInt64()
+					if str_toPeriod == "0" {
+						if str_fromPeriod == "0" {
+							//rows = append(rows, row)
+							transactions.Transactions = append(transactions.Transactions, convertTransactionToJson(row))
+						} else if rowTimeStamp > fromPeriod {
+							rows = append(rows, row)
+						}
+					} else {
+						if str_fromPeriod == "0" && rowTimeStamp < toPeriod {
+							//rows = append(rows, row)
+							transactions.Transactions = append(transactions.Transactions, convertTransactionToJson(row))
+						} else if rowTimeStamp > fromPeriod && rowTimeStamp < toPeriod {
+							//rows = append(rows, row)
+							transactions.Transactions = append(transactions.Transactions, convertTransactionToJson(row))
+						}
 					}
 				}
 			}

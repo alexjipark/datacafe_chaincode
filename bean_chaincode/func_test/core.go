@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"encoding/json"
 )
 
 var state map[string] []byte
@@ -50,7 +51,44 @@ func checkBalance(args []string) {
 	}
 }
 
+type TransactionInfo struct {
+	SendAddress		string	`json:"sendAddr"`
+	TransactionTime		string	`json:"transactionTime"`
+	TransferredBean		int32	`json:"transferredBean"`
+}
+
+type TransactionList struct {
+	Transactions	[]TransactionInfo	`json:"transactions"`
+}
+
+func convertTransactionToJson () TransactionInfo {
+	var transaction TransactionInfo
+
+	transaction.SendAddress = "sendAddress"
+	transaction.TransferredBean = 12
+	transaction.TransactionTime = strconv.FormatInt(1488856727,10)
+
+	return transaction
+}
+
+func testConverting () {
+	var transactions TransactionList
+
+	temp := fmt.Sprintf("%d",12345)
+	fmt.Printf(temp)
+
+	transactions.Transactions = append(transactions.Transactions, convertTransactionToJson())
+	transactions.Transactions = append(transactions.Transactions, convertTransactionToJson())
+	jsonbytes, err := json.Marshal(transactions)
+	if err == nil {
+		fmt.Printf(string(jsonbytes))
+	}
+}
+
 func main() {
+
+	testConverting()
+
 	state = make(map[string][]byte)
 	state["abc"] = []byte(strconv.FormatInt(100,10))
 	state["def"] = []byte(strconv.FormatInt(100,10))

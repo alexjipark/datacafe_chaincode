@@ -31,6 +31,9 @@ import (
 	"io"
 	"flag"
 	"encoding/binary"
+	"github.com/golang/protobuf/proto"
+	"io/ioutil"
+	"strconv"
 )
 
 type adapter struct {
@@ -157,6 +160,62 @@ func testHttpJsonPost() {
 
 }
 
+// 721cb8cf-3374-4f78-8c3a-4a744d85ca96
+
+func checkTransferComplete( txid string, sendAddr string, recvAddr string, beanAmount int) {
+
+	url := "http://52.197.104.234:7050/transactions/" + txid
+	response, err := http.Get(url)
+	defer response.Body.Close()
+
+	responseBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		fmt.Printf("...")
+		return
+	}
+
+	message := pb.ChaincodeMessage{}
+	err = json.Unmarshal(responseBytes, &message)
+	if err != nil {
+		fmt.Printf("...")
+		return
+	}
+
+	invocationSpec := pb.ChaincodeInvocationSpec{}
+
+	//err := pb.Unmarshal([]byte(payload), invocationSpec)
+	err = proto.Unmarshal(message.Payload, &invocationSpec)
+	if err != nil {
+		fmt.Printf("Error: " + err.Error())
+		return
+	}
+
+	fmt.Printf(invocationSpec.ChaincodeSpec.ChaincodeID.Name + "\n")
+	fmt.Printf(invocationSpec.ChaincodeSpec.CtorMsg.String() + "\n")
+
+	function := string(invocationSpec.ChaincodeSpec.CtorMsg.Args[0])
+	if function != "transferBean" {
+		fmt.Printf("Not TransferBean..\n")
+		return
+	}
+	send := string(invocationSpec.ChaincodeSpec.CtorMsg.Args[1])
+	recv := string(invocationSpec.ChaincodeSpec.CtorMsg.Args[2])
+	amount, err := strconv.Atoi(string(invocationSpec.ChaincodeSpec.CtorMsg.Args[3]))
+
+	if err != nil {
+		fmt.Printf("Error in atoi..")
+		return
+	}
+
+	if send != sendAddr || recv != recvAddr || beanAmount != amount {
+		fmt.Printf("Not matched..")
+		return
+	} else {
+		fmt.Printf("Done!!!!!!")
+	}
+
+}
+
 //GetInterestedEvents implements consumer.EventAdapter interface for registering interested events
 func (a *adapter) GetInterestedEvents() ([]*pb.Interest, error) {
 	if a.chaincodeID != "" {
@@ -219,6 +278,11 @@ func createEventClient(eventAddress string, listenToRejections bool, cid string)
 func main() {
 
 	// Test..
+	checkTransferComplete(	"721cb8cf-3374-4f78-8c3a-4a744d85ca96",
+				"2F6865DFE2FC2D4B52768A01C4D93316829D052DFF6413C582A171B53FAE7C05",
+				"EA1B384B7D8B33F1A63013CF4EE698ED0F32B3AFEB71D7144A73D651E5A20E51",
+				1000)
+
 	// requestNotiforReward("nuclecker27", "supernova27", 200, "Bought from the one..")
 	testStructBytes()
 

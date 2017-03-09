@@ -40,6 +40,7 @@ type Resp_AccountInfo struct {
 */
 type TransactionInfo struct {
 	SendAddress		string	`json:"sendAddr"`
+	RecvAddress		string	`json:"recvAddr"`
 	TransactionTime		int64	`json:"transactionTime"`
 	TransferredBean		int32	`json:"transferredBean"`
 }
@@ -101,6 +102,7 @@ func convertTransactionToJson (row shim.Row) TransactionInfo {
 	var transaction TransactionInfo
 
 	transaction.SendAddress = row.Columns[2].GetString_()
+	transaction.RecvAddress = row.Columns[0].GetString_()
 	//transaction.TransferredBean = strconv.Itoa(int(row.Columns[3].GetInt32()))
 	//transaction.TransactionTime = fmt.Sprintf("%d",row.Columns[2].GetInt64())//strconv.FormatInt(row.Columns[2].GetInt64(), 10)
 	transaction.TransferredBean = row.Columns[3].GetInt32()
@@ -109,10 +111,10 @@ func convertTransactionToJson (row shim.Row) TransactionInfo {
 	return transaction
 }
 
-func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, args []string, buyOrSell int) ([]byte, error) {
 
 
-	recvAddr := args[0]
+	targetAddr := args[0]
 	str_fromPeriod := args[1]
 	str_toPeriod := args[2]
 
@@ -152,7 +154,7 @@ func (bc *BeanChaincode) queryTransactions (stub shim.ChaincodeStubInterface, ar
 4	Certificate	Byte
 				 */
 
-				if recvAddr == row.Columns[0].GetString_() {
+				if targetAddr == row.Columns[buyOrSell].GetString_() {
 					fromPeriod,_ := strconv.ParseInt(str_fromPeriod, 10, 64)
 					toPeriod,_ := strconv.ParseInt(str_toPeriod, 10, 64)
 					rowTimeStamp := row.Columns[1].GetInt64()
@@ -404,7 +406,11 @@ func (bc *BeanChaincode) Query(stub shim.ChaincodeStubInterface,
 	if function == "getBeanBalance" {
 		jsonRespByte, _ = bc.getBeanBalance(stub, args)
 	} else if function == "getTransactionList" {
-		jsonRespByte, _ = bc.queryTransactions(stub, args)
+		jsonRespByte, _ = bc.queryTransactions(stub, args, 0)
+	} else if function == "getSellerTransactionList" {
+		jsonRespByte, _ = bc.queryTransactions(stub, args, 0)
+	} else if function == "getBuyerTransactionList" {
+		jsonRespByte, _ = bc.queryTransactions(stub, args, 2)
 	}
 
 	if len(jsonRespByte) == 0 {

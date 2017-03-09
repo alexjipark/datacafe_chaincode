@@ -1,0 +1,9 @@
+need to install modules below..
+
+go get -u github.com/golang/protobuf/{proto,protoc-gen-go}
+go get -u github.com/gorilla/mux
+
+Reference
+https://www.thepolyglotdeveloper.com/2016/07/create-a-simple-restful-api-with-golang/
+https://thenewstack.io/make-a-restful-json-api-go/
+https://www.netlify.com/blog/2016/10/20/building-a-restful-api-in-go/

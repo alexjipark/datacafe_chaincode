@@ -104,9 +104,14 @@ func CheckTransferComplete(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+func HealthCheck(w http.ResponseWriter, req *http.Request) {
+	var result CheckResult
+	json.NewEncoder(w).Encode(result)
+}
 
 func main() {
 	router := mux.NewRouter()
+	router.HandleFunc("/", HealthCheck).Methods("GET")
 	router.HandleFunc("/checkTransferComplete/{txid}", CheckTransferComplete).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8090", router))
 }

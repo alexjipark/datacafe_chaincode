@@ -1,11 +1,19 @@
 <component name="libraryTable">
   <library name="GOPATH &lt;datacafe_chaincode&gt;">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/../../workspace/go/src/github.com" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/github.com" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/golang.org" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/google.golang.org" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/intellij" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/go_test" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
-      <root url="file://$PROJECT_DIR$/../../workspace/go/src/github.com" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/github.com" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/golang.org" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/google.golang.org" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/intellij" />
+      <root url="file://$PROJECT_DIR$/../../4_Program/0_GoLang/workspace/src/go_test" />
     </SOURCES>
     <excluded>
       <root url="file://$PROJECT_DIR$" />

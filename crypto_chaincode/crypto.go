@@ -40,7 +40,7 @@ var bean_chaincode = "d3ea472247bb70406f0796c6ee581423e87107de05e380922c32ff4e95
 func (t *SimpleChaincode) transferBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var trasfer_agrs []string
 	trasfer_agrs = append(trasfer_agrs, "transferBean")
-	trasfer_agrs = append(trasfer_agrs, args)
+	trasfer_agrs = append(trasfer_agrs, args...)
 
 	response, err := stub.InvokeChaincode(bean_chaincode, args)
 

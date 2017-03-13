@@ -39,12 +39,10 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 var bean_chaincode = "d3ea472247bb70406f0796c6ee581423e87107de05e380922c32ff4e958d853c162adc0b92777285491c95b8147e6a754dce7d09ea07faf2359765e9ffc03d30"
 
 func (t *SimpleChaincode) transferBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-
 	f := "transferBean"
 	invokeArgs := util.ToChaincodeArgs(f, args[0], args[1], args[2])
 
 	response, err := stub.InvokeChaincode(bean_chaincode, invokeArgs)
-
 	return response, err
 }
 

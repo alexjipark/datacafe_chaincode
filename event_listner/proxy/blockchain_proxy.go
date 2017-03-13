@@ -109,6 +109,12 @@ func HealthCheck(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
+func checkTemp() {
+	var trasfer_agrs []string
+	trasfer_agrs = append(trasfer_agrs, "transferBean")
+	trasfer_agrs = append(trasfer_agrs, "asdf")
+}
+
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", HealthCheck).Methods("GET")

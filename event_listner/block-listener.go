@@ -192,6 +192,7 @@ func checkTransferComplete( txid string, sendAddr string, recvAddr string, beanA
 
 	fmt.Printf(invocationSpec.ChaincodeSpec.ChaincodeID.Name + "\n")
 	fmt.Printf(invocationSpec.ChaincodeSpec.CtorMsg.String() + "\n")
+	invocationSpec.ChaincodeSpec
 
 	function := string(invocationSpec.ChaincodeSpec.CtorMsg.Args[0])
 	if function != "transferBean" {

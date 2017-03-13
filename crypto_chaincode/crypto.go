@@ -35,6 +35,18 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	return nil, nil
 }
 
+var bean_chaincode = "d3ea472247bb70406f0796c6ee581423e87107de05e380922c32ff4e958d853c162adc0b92777285491c95b8147e6a754dce7d09ea07faf2359765e9ffc03d30"
+
+func (t *SimpleChaincode) transferBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var trasfer_agrs []string
+	trasfer_agrs = append(trasfer_agrs, "transferBean")
+	trasfer_agrs = append(trasfer_agrs, args)
+
+	response, err := stub.InvokeChaincode(bean_chaincode, args)
+
+	return response, err
+}
+
 // Invoke isur entry point to invoke a chaincode function
 func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println("invoke is running " + function)
@@ -44,6 +56,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Init(stub, "init", args)
 	} else if function == "write" {
 		return t.write(stub, args)
+	} else if function == "transfer" {
+		return t.transferBean(stub, args)
 	}
 	fmt.Println("invoke did not find func: " + function)
 

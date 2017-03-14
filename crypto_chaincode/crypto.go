@@ -170,7 +170,7 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 
 
 	//transferBean
-
+/*
 	// buyer ID
 	sendAddr := args[2]
 	// seller ID
@@ -189,7 +189,7 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 	f := "transferBean"
 	invokeArgs := util.ToChaincodeArgs(f, sendAddr, recvAddr, price)
 	_, _ = stub.InvokeChaincode(bean_chaincode, invokeArgs)
-
+*/
 //	_, _ = t.transferBean(stub, sendAddr, recvAddr, price)
 
 	//result, err := t.transferBean(stub, args[0], args[1], args[2])

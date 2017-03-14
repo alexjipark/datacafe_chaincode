@@ -49,9 +49,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	} else if function == "write" {
 		return t.write(stub, args)
 	} else if function == "setCCID" {
-		return t.write(stub, args)
-	} else if function == "setPrice" {
-		return t.write(stub, args)
+		return t.setCCID(stub, args)
+	} else if function == "setprice" {
+		return t.setprice(stub, args)
 	} else if function == "process" {
 		return t.process(stub, args)
 	}
@@ -113,7 +113,7 @@ func (t *SimpleChaincode) setCCID(stub shim.ChaincodeStubInterface, args []strin
 	return nil, nil
 }
 
-func (t *SimpleChaincode) setPrice(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *SimpleChaincode) setprice(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var uuid, key1, key2, value1, value2 string
 	var err error
 	fmt.Println("running write()")

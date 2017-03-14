@@ -171,15 +171,15 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 
 	//transferBean
 	// buyer ID
-	sendAddr := args[1]
+	sendAddr := args[2]
 	// seller ID
-	recvAddrbytes, err := stub.GetState(args[0]+"guid")
+	recvAddrbytes, err := stub.GetState(args[1]+"guid")
 	if err != nil {
 		return nil, errors.New("Error in Getting state about Seller ID")
 	}
 	recvAddr := string(recvAddrbytes)
 	// Price
-	pricebytes, err := stub.GetState(args[0]+"price")
+	pricebytes, err := stub.GetState(args[1]+"price")
 	if err != nil {
 		return nil, errors.New("Error in Getting state about Selling Price")
 	}

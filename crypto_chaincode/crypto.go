@@ -67,9 +67,9 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 	// Handle different functions
 	if function == "read" { //read a variable
 		return t.read(stub, args)
-	} /* else if function == "process" {
+	} else if function == "process" {
 		return t.process(stub, args)
-	}*/
+	}
 
 	fmt.Println("query did not find func: " + function)
 

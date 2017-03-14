@@ -207,7 +207,7 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 	fmt.Printf("%q\n", ciphertext)
 
 	secret := []byte("abcdefghijklmnop")
-	iv := []byte("abcdefgh")
+	iv := []byte("abcdefghijklmnop")
 
 	block, err := aes.NewCipher(secret)
 	if err != nil {

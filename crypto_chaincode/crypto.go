@@ -170,7 +170,7 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 
 
 	//transferBean
-	/*
+
 	// buyer ID
 	sendAddr := args[2]
 	// seller ID
@@ -186,13 +186,15 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 	}
 	price := string(pricebytes)
 
-	result, err := t.transferBean(stub, sendAddr, recvAddr, price)
-	*/
-	result, err := t.transferBean(stub, args[0], args[1], args[2])
+	_, _ = t.transferBean(stub, sendAddr, recvAddr, price)
+
+	//result, err := t.transferBean(stub, args[0], args[1], args[2])
+/*
 	if err != nil {
+
 		return result, err
 	}
-
+*/
 	//=============== Done with Transferring Beans.. ===============//
 
 	var jsonResp string

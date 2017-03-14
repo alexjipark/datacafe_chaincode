@@ -182,16 +182,19 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 	}
 	recvAddr := string(recvAddrbytes)
 	// Price
+
 	pricebytes, err := stub.GetState(args[1]+"price")
 	if err != nil {
 		return nil, errors.New("Error in Getting state about Selling Price")
 	}
-	price := string(pricebytes)
+	price_temp := string(pricebytes)
+	price := "100"
 
 	result, err := t.transferBean(stub, sendAddr, recvAddr, price)
 
 	if err != nil {
 		fmt.Printf("TransferBean Error : %s\n", err.Error())
+		fmt.Printf("%s\n", price_temp)
 		return result, err
 	}
 

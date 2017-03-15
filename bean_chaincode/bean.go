@@ -358,10 +358,12 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	if err != nil {
 		return nil, errors.New("Error in putting State with sendAddress")
 	}
+	/*
 	err = stub.SetEvent("BeanChanged", []byte(sendAddr))
 	if err != nil {
 		fmt.Printf("Error in Setting event for Addr[%x]\n", sendAddr)
 	}
+	*/
 
 	//err = stub.PutState(recvAddr, []byte(strconv.FormatUint(newBean4Receiver,10)))
 	err = stub.PutState(recvAddr, []byte(strconv.Itoa(newBean4Receiver)))
@@ -369,10 +371,12 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		// [AJ] Problem : what if PutState with sendAddr
 		return nil, errors.New("Error in putting State with recvAddress")
 	}
+	/*
 	err = stub.SetEvent("BeanChanged", []byte(recvAddr))
 	if err != nil {
 		fmt.Printf("Error in Setting event for Addr[%x]", recvAddr)
 	}
+	*/
 
 	//====================== Update Table ====================//
 	_, err = bc.assignNewTransaction(stub, args)

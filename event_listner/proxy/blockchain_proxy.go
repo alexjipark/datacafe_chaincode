@@ -10,12 +10,12 @@ import (
 	"io/ioutil"
 	"github.com/golang/protobuf/proto"
 	pb "github.com/hyperledger/fabric/protos"
-	"strconv"
 	"errors"
 	"flag"
 	"github.com/hyperledger/fabric/events/consumer"
 	"os"
 	"database/sql"
+	"strconv"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -81,7 +81,7 @@ func isTransferComplete( txid string, sendAddr string, recvAddr string, beanAmou
 type TransferInfo struct {
 	SendAddr 	string	`json:"sendAddr"`
 	RecvAddr	string	`json:"recvAddr"`
-	BeanAmount	string	`json:"beanAmount"`
+	BeanAmount	int	`json:"beanAmount"`
 }
 
 type CheckResult struct {
@@ -100,8 +100,9 @@ func CheckTransferComplete(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	bean := strconv.Itoa(transfer_info.BeanAmount)
 	retVal, err := isTransferComplete (txid, transfer_info.SendAddr,
-				transfer_info.RecvAddr, transfer_info.BeanAmount)
+				transfer_info.RecvAddr, bean)
 
 	var result CheckResult
 	result.Result = retVal
@@ -235,10 +236,7 @@ type TransferInfo struct {
 	BeanAmount	int	`json:"beanAmount"`
 }
 
-CREATE TABLE beanrecords (  	sendAddress VARCHAR(128) NOT NULL,
-				recvAddress VARCHAR(128) NOT NULL,
-				beanAmount  INT(11) unsigned NOT NULL,
-				transferTime timestamp not null);
+CREATE TABLE beanrecords (  	sendAddress VARCHAR(128) NOT NULL, recvAddress VARCHAR(128) NOT NULL, beanAmount  INT(11) unsigned NOT NULL, transferTime timestamp not null);
  */
 //
 func setupBeanStorage(info TransferInfo) {

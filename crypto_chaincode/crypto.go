@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -176,7 +175,7 @@ func (t *SimpleChaincode) getkey(stub shim.ChaincodeStubInterface, args []string
 	return valAsbytes, nil
 }
 
-var bean_chaincode = "aefd9380f93853205adcebb9fccc85873c469bce5912aa910350e1bb96adbf248aa7e8a401df098277abb1e344241a77f81f1e59764825f94d1a82605bc0e91e"
+var bean_chaincode = "da30ee0fcf6207303ed3e1176792781c0f8035196931b0baf9991c901d71f32bebd3049e0afb90845c76f977a765c4adf4fea985b48aa5c659ccfb8df8d4da7f"
 func (t *SimpleChaincode) transferBean(stub shim.ChaincodeStubInterface, sendAddr string, recvAddr string, price string) ([]byte, error) {
 	f := "transferBean"
 	invokeArgs := util.ToChaincodeArgs(f, sendAddr, recvAddr, price)
@@ -205,13 +204,14 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 	if err != nil {
 		return nil, errors.New("Error in Getting state about Selling Price")
 	}
-	fmt.Printf("price : %s\n", pricebytes)
-	price := string(pricebytes)
+	price_temp := string(pricebytes)
+	price := "100"
 
 	result, err := t.transferBean(stub, sendAddr, recvAddr, price)
 
 	if err != nil {
 		fmt.Printf("TransferBean Error : %s\n", err.Error())
+		fmt.Printf("%s\n", price_temp)
 		return result, err
 	}
 
@@ -236,11 +236,12 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 
 	block, err := aes.NewCipher(secret)
 	if err != nil {
-		return nil, errors.New("Errors in NewCiper with secret")
+		fmt.Printf(" Failed to make NewCipher: %s\n", err.Error())
+		return nil, err
 	}
 
 	if len(ciphertext) < aes.BlockSize {
-		return nil, errors.New("cipertext is too short")
+		return nil, errors.New("ciphertext too short")
 	}
 
 	// CBC mode always works in whole blocks.
@@ -253,13 +254,15 @@ func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []strin
 	// CryptBlocks can work in-place if the two arguments are the same.
 	mode.CryptBlocks(ciphertext, ciphertext)
 
-	err = stub.PutState(args[1] + "key", ciphertext) //write the variable into the chaincode state
+	retstring := base64.StdEncoding.EncodeToString(ciphertext)
+
+	err = stub.PutState(args[1]+"key", []byte(retstring)) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}
 
-
-	fmt.Printf("%s\n", ciphertext)
+	fmt.Printf("%s\n", retstring)
 	// Output: exampleplaintext
-	return ciphertext, nil
+	return []byte(retstring), nil
 }
+

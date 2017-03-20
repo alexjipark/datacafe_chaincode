@@ -398,6 +398,8 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		return nil, err
 	}
 
+	fmt.Println("5")
+
 	//====================== Update Table ====================//
 	/* == 03.19 Commeted out cause not using table for recording transactions..
 	_, err = bc.assignNewTransaction(stub, args)

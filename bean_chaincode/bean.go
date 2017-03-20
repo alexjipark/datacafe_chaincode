@@ -22,6 +22,7 @@ import (
 	"errors"
 	"strconv"
 	"encoding/json"
+	"time"
 )
 
 //var beanLogger = logging.MustGetLogger("bean_cc")
@@ -313,6 +314,27 @@ func (Bc *BeanChaincode) depositBean(stub shim.ChaincodeStubInterface, args []st
 }
 
 
+func (bc *BeanChaincode) eventForTransfer (stub shim.ChaincodeStubInterface, sendAddr string , recvAddr string, beanAmount int32 ) error {
+	//TransactionInfo
+	eventInfo :=	TransactionInfo{}
+	eventInfo.SendAddress = sendAddr
+	eventInfo.RecvAddress = recvAddr
+	eventInfo.TransferredBean = beanAmount
+	eventInfo.TransactionTime = time.Now().UnixNano()
+
+	eventBytes, err := json.Marshal(eventInfo)
+	if err == nil {
+		return errors.New("Errors in Marshalling eventInfo..")
+	}
+
+	err = stub.SetEvent("BeanTransfer", eventBytes)
+	if err != nil {
+		fmt.Printf("Error in Setting event for Addr[%x]", recvAddr)
+		return errors.New("Errors in SetEvent..")
+	}
+	return nil
+}
+
 func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	var remainBean4Sender, newBean4Receiver int
@@ -358,12 +380,6 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	if err != nil {
 		return nil, errors.New("Error in putting State with sendAddress")
 	}
-	/*
-	err = stub.SetEvent("BeanChanged", []byte(sendAddr))
-	if err != nil {
-		fmt.Printf("Error in Setting event for Addr[%x]\n", sendAddr)
-	}
-	*/
 
 	//err = stub.PutState(recvAddr, []byte(strconv.FormatUint(newBean4Receiver,10)))
 	err = stub.PutState(recvAddr, []byte(strconv.Itoa(newBean4Receiver)))
@@ -371,19 +387,21 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		// [AJ] Problem : what if PutState with sendAddr
 		return nil, errors.New("Error in putting State with recvAddress")
 	}
-	/*
-	err = stub.SetEvent("BeanChanged", []byte(recvAddr))
+
+	// Trigger Event for BeanTransfer
+	err = bc.eventForTransfer(stub, sendAddr, recvAddr, beanAmount)
 	if err != nil {
-		fmt.Printf("Error in Setting event for Addr[%x]", recvAddr)
+		return nil, err
 	}
-	*/
 
 	//====================== Update Table ====================//
+	/* == 03.19 Commeted out cause not using table for recording transactions..
 	_, err = bc.assignNewTransaction(stub, args)
 	if err != nil {
 		//fmt.Printf("Error in Assign New Transaction in the Table..")
 		return nil, errors.New("Error in Assign New Transaction in the Table..")
 	}
+	*/
 
 	return nil, nil
 }

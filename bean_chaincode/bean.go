@@ -322,16 +322,24 @@ func (bc *BeanChaincode) eventForTransfer (stub shim.ChaincodeStubInterface, sen
 	eventInfo.TransferredBean = beanAmount
 	eventInfo.TransactionTime = time.Now().UnixNano()
 
+	fmt.Println("6")
+
+
 	eventBytes, err := json.Marshal(eventInfo)
 	if err == nil {
 		return errors.New("Errors in Marshalling eventInfo..")
 	}
+
+	fmt.Println("7")
 
 	err = stub.SetEvent("BeanTransfer", eventBytes)
 	if err != nil {
 		fmt.Printf("Error in Setting event for Addr[%x]", recvAddr)
 		return errors.New("Errors in SetEvent..")
 	}
+
+	fmt.Println("8")
+
 	return nil
 }
 

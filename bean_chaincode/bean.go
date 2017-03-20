@@ -352,6 +352,7 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		return nil, errors.New("Error in Coverting beanAmount")
 	}
 
+	fmt.Println("1")
 	sendBeanBytes, err := stub.GetState(sendAddr)
 	if err != nil {
 		return nil, errors.New("Incorrect Address for Sender")
@@ -359,6 +360,7 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	//sendBean := binary.BigEndian.Uint64(sendBeanBytes)
 	sendBean,_ := strconv.Atoi(string(sendBeanBytes))
 
+	fmt.Println("2")
 	recvBeanBytes, err := stub.GetState(recvAddr)
 	if err != nil {
 //		beanLogger.Debug("Address[%x] doesn't have the stored balance..", recvAddr)
@@ -380,6 +382,7 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	if err != nil {
 		return nil, errors.New("Error in putting State with sendAddress")
 	}
+	fmt.Println("3")
 
 	//err = stub.PutState(recvAddr, []byte(strconv.FormatUint(newBean4Receiver,10)))
 	err = stub.PutState(recvAddr, []byte(strconv.Itoa(newBean4Receiver)))
@@ -387,6 +390,7 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		// [AJ] Problem : what if PutState with sendAddr
 		return nil, errors.New("Error in putting State with recvAddress")
 	}
+	fmt.Println("4")
 
 	// Trigger Event for BeanTransfer
 	err = bc.eventForTransfer(stub, sendAddr, recvAddr, int32(beanAmount) )

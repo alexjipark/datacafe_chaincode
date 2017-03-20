@@ -326,7 +326,7 @@ func (bc *BeanChaincode) eventForTransfer (stub shim.ChaincodeStubInterface, sen
 
 
 	eventBytes, err := json.Marshal(eventInfo)
-	if err == nil {
+	if err != nil {
 		return errors.New("Errors in Marshalling eventInfo..")
 	}
 

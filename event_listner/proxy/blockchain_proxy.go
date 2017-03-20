@@ -152,14 +152,22 @@ func createEventClient (eventAddress string, rejection bool, cid string) *eventA
 
 }
 
+type TransactionInfo struct {
+	SendAddress		string	`json:"sendAddr"`
+	RecvAddress		string	`json:"recvAddr"`
+	TransactionTime		int64	`json:"transactionTime"`
+	TransferredBean		int32	`json:"transferredBean"`
+}
+
 func decodeBeanTransferEvent (event []byte) {
-	var transferInfo TransferInfo
-	err := json.Unmarshal(event, &transferInfo)
+	var txInfo TransactionInfo
+	err := json.Unmarshal(event, &txInfo)
 	if err != nil {
 		fmt.Errorf("Error in Unmarshalling the received TransferBean Event.. : %s\n", err)
 		return
 	}
 	// Storing TransferBean Event into "Mysql"
+	setupBeanStorage(txInfo)
 }
 
 func execRoutineForEvents (eventAddress string, rejection bool, chaincodeID string) {
@@ -239,7 +247,7 @@ type TransferInfo struct {
 CREATE TABLE beanrecords (  	sendAddress VARCHAR(128) NOT NULL, recvAddress VARCHAR(128) NOT NULL, beanAmount  INT(11) unsigned NOT NULL, transferTime timestamp not null);
  */
 //
-func setupBeanStorage(info TransferInfo) {
+func setupBeanStorage(info TransactionInfo) {
 	db, err := sql.Open("mysql", "root:supernova27@tcp(127.0.0.1:3306)/cuppadata")
 	if err != nil {
 		log.Fatal(err)
@@ -259,7 +267,7 @@ func setupBeanStorage(info TransferInfo) {
 	}
 	defer tx.Rollback()
 
-	_,err = db.Exec("Insert into beanrecords values (?,?,?,NOW())", info.SendAddr, info.RecvAddr, info.BeanAmount)
+	_,err = db.Exec("Insert into beanrecords values (?,?,?,NOW())", info.SendAddress, info.RecvAddress, info.TransferredBean)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -282,6 +290,7 @@ func main() {
 	flag.StringVar (&eventAddress, "events-address", "0.0.0.0:9053", "address of events Server..")
 	flag.BoolVar( &listenToRejections, "listen-to-rejections", false, "whether to listen to rejection events")
 	flag.StringVar (&chaincodeID, "events-from-chaincode", "", "listen to events from the given chaincode")
+	flag.Parse()
 
 	fmt.Printf("Events Address: %s\n", eventAddress)
 	fmt.Printf("Events From ChaincodeID : %s\n", chaincodeID)

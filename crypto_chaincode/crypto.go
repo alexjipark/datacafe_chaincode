@@ -11,6 +11,8 @@ import (
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"github.com/hyperledger/fabric/core/util"
+	"time"
+	"encoding/json"
 )
 
 type SimpleChaincode struct {
@@ -183,6 +185,34 @@ func (t *SimpleChaincode) transferBean(stub shim.ChaincodeStubInterface, sendAdd
 
 	response, err := stub.InvokeChaincode(bean_chaincode, invokeArgs)
 	return response, err
+}
+type TransactionInfo struct {
+	SendAddress		string	`json:"sendAddr"`
+	RecvAddress		string	`json:"recvAddr"`
+	TransactionTime		int64	`json:"transactionTime"`
+	TransferredBean		int32	`json:"transferredBean"`
+}
+
+func (bc *SimpleChaincode) eventForTransfer (stub shim.ChaincodeStubInterface, sendAddr string , recvAddr string, beanAmount int32 ) error {
+	//TransactionInfo
+	eventInfo :=	TransactionInfo{}
+	eventInfo.SendAddress = sendAddr
+	eventInfo.RecvAddress = recvAddr
+	eventInfo.TransferredBean = beanAmount
+	eventInfo.TransactionTime = time.Now().UnixNano()
+
+	eventBytes, err := json.Marshal(eventInfo)
+	if err != nil {
+		return errors.New("Errors in Marshalling eventInfo..")
+	}
+
+	err = stub.SetEvent("BeanTransfer", eventBytes)
+	if err != nil {
+		fmt.Printf("Error in Setting event for Addr[%x]", recvAddr)
+		return errors.New("Errors in SetEvent..")
+	}
+
+	return nil
 }
 
 func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {

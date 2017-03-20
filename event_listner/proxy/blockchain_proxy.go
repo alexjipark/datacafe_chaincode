@@ -280,7 +280,7 @@ func setupBeanStorage(info TransactionInfo) {
 
 func main() {
 
-	setupBeanStorage(TransferInfo{SendAddr:"qazwsx", RecvAddr:"edcrfv", BeanAmount:100})
+	//setupBeanStorage(TransferInfo{SendAddr:"qazwsx", RecvAddr:"edcrfv", BeanAmount:100})
 
 	// Event Register
 	var eventAddress string

@@ -21,7 +21,7 @@ import (
 
 // 721cb8cf-3374-4f78-8c3a-4a744d85ca96
 
-func isTransferComplete( txid string, sendAddr string, recvAddr string, beanAmount int) (int, error) {
+func isTransferComplete( txid string, sendAddr string, recvAddr string, beanAmount string) (int, error) {
 
 	url := "http://52.197.104.234:7050/transactions/" + txid
 	response, err := http.Get(url)
@@ -59,7 +59,7 @@ func isTransferComplete( txid string, sendAddr string, recvAddr string, beanAmou
 	}
 	send := string(invocationSpec.ChaincodeSpec.CtorMsg.Args[1])
 	recv := string(invocationSpec.ChaincodeSpec.CtorMsg.Args[2])
-	amount, err := strconv.Atoi(string(invocationSpec.ChaincodeSpec.CtorMsg.Args[3]))
+	amount := string(invocationSpec.ChaincodeSpec.CtorMsg.Args[3])
 
 	if err != nil {
 		fmt.Printf("Error in atoi..")
@@ -81,7 +81,7 @@ func isTransferComplete( txid string, sendAddr string, recvAddr string, beanAmou
 type TransferInfo struct {
 	SendAddr 	string	`json:"sendAddr"`
 	RecvAddr	string	`json:"recvAddr"`
-	BeanAmount	int	`json:"beanAmount"`
+	BeanAmount	string	`json:"beanAmount"`
 }
 
 type CheckResult struct {

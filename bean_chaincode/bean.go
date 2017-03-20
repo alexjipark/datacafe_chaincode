@@ -390,12 +390,12 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	}
 
 	// Trigger Event for BeanTransfer
-	/*
+
 	err = bc.eventForTransfer(stub, sendAddr, recvAddr, int32(beanAmount) )
 	if err != nil {
 		return nil, err
 	}
-	*/
+
 
 
 	//====================== Update Table ====================//

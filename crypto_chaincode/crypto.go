@@ -100,8 +100,9 @@ func (t *SimpleChaincode) write(stub shim.ChaincodeStubInterface, args []string)
 func (t *SimpleChaincode) setCCID(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var key, value string
 	var err error
-	fmt.Println("running write()")
+//	fmt.Println("running write()")
 
+	fmt.Printf("setprice : [0] %s \n", args[0])
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1. name of the key and value to set")
 	}
@@ -118,7 +119,9 @@ func (t *SimpleChaincode) setCCID(stub shim.ChaincodeStubInterface, args []strin
 func (t *SimpleChaincode) setprice(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var uuid, key1, key2, value1, value2 string
 	var err error
-	fmt.Println("running write()")
+	//fmt.Println("running write()")
+
+	fmt.Printf("setprice : [0] %s / [1] %s / [2] %s\n", args[0], args[1], args[2])
 
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 3. name of the key and value to set")
@@ -164,6 +167,7 @@ func (t *SimpleChaincode) getkey(stub shim.ChaincodeStubInterface, args []string
 	var key, jsonResp string
 	var err error
 
+	fmt.Printf("getkey : [0] %s \n", args[0])
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
 	}
@@ -225,6 +229,7 @@ func (bc *SimpleChaincode) eventForTransfer (stub shim.ChaincodeStubInterface, s
 func (t *SimpleChaincode) process(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 
+	fmt.Printf("process : [0] %s / [1] %s / [2] %s\n", args[0], args[1], args[2])
 	//transferBean
 
 	// buyer ID

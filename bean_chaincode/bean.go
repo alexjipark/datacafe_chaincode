@@ -322,23 +322,16 @@ func (bc *BeanChaincode) eventForTransfer (stub shim.ChaincodeStubInterface, sen
 	eventInfo.TransferredBean = beanAmount
 	eventInfo.TransactionTime = time.Now().UnixNano()
 
-	fmt.Println("6")
-
-
 	eventBytes, err := json.Marshal(eventInfo)
 	if err != nil {
 		return errors.New("Errors in Marshalling eventInfo..")
 	}
-
-	fmt.Println("7")
 
 	err = stub.SetEvent("BeanTransfer", eventBytes)
 	if err != nil {
 		fmt.Printf("Error in Setting event for Addr[%x]", recvAddr)
 		return errors.New("Errors in SetEvent..")
 	}
-
-	fmt.Println("8")
 
 	return nil
 }
@@ -360,7 +353,6 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		return nil, errors.New("Error in Coverting beanAmount")
 	}
 
-	fmt.Println("1")
 	sendBeanBytes, err := stub.GetState(sendAddr)
 	if err != nil {
 		return nil, errors.New("Incorrect Address for Sender")
@@ -368,7 +360,6 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	//sendBean := binary.BigEndian.Uint64(sendBeanBytes)
 	sendBean,_ := strconv.Atoi(string(sendBeanBytes))
 
-	fmt.Println("2")
 	recvBeanBytes, err := stub.GetState(recvAddr)
 	if err != nil {
 //		beanLogger.Debug("Address[%x] doesn't have the stored balance..", recvAddr)
@@ -390,7 +381,6 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 	if err != nil {
 		return nil, errors.New("Error in putting State with sendAddress")
 	}
-	fmt.Println("3")
 
 	//err = stub.PutState(recvAddr, []byte(strconv.FormatUint(newBean4Receiver,10)))
 	err = stub.PutState(recvAddr, []byte(strconv.Itoa(newBean4Receiver)))
@@ -398,7 +388,6 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		// [AJ] Problem : what if PutState with sendAddr
 		return nil, errors.New("Error in putting State with recvAddress")
 	}
-	fmt.Println("4")
 
 	// Trigger Event for BeanTransfer
 	err = bc.eventForTransfer(stub, sendAddr, recvAddr, int32(beanAmount) )
@@ -406,7 +395,6 @@ func (bc *BeanChaincode) transferBean(stub shim.ChaincodeStubInterface, args []s
 		return nil, err
 	}
 
-	fmt.Println("5")
 
 	//====================== Update Table ====================//
 	/* == 03.19 Commeted out cause not using table for recording transactions..

@@ -13,6 +13,7 @@ import (
 	"github.com/hyperledger/fabric/core/util"
 	"time"
 	"encoding/json"
+	"strconv"
 )
 
 type SimpleChaincode struct {
@@ -184,6 +185,12 @@ func (t *SimpleChaincode) transferBean(stub shim.ChaincodeStubInterface, sendAdd
 	fmt.Printf("Bean[%s] from %s to %s\n", price, sendAddr, recvAddr)
 
 	response, err := stub.InvokeChaincode(bean_chaincode, invokeArgs)
+	if err == nil {
+		//eventForTransfer (stub shim.ChaincodeStubInterface, sendAddr string , recvAddr string, beanAmount int32 )
+		bean, _ := strconv.Atoi(price)
+		t.eventForTransfer(stub, sendAddr, recvAddr, int32(bean))
+
+	}
 	return response, err
 }
 type TransactionInfo struct {

@@ -23,7 +23,7 @@ import (
 
 func isTransferComplete( txid string, sendAddr string, recvAddr string, beanAmount string) (int, error) {
 
-	url := "http://52.197.104.234:7050/transactions/" + txid
+	url := "http://blockchain.cuppadata.com:9050/transactions/" + txid
 	response, err := http.Get(url)
 	defer response.Body.Close()
 
@@ -79,6 +79,7 @@ func isTransferComplete( txid string, sendAddr string, recvAddr string, beanAmou
 }
 
 type TransferInfo struct {
+	TxId		string 	`json:"txId"`
 	SendAddr 	string	`json:"sendAddr"`
 	RecvAddr	string	`json:"recvAddr"`
 	BeanAmount	int	`json:"beanAmount"`
@@ -107,6 +108,25 @@ func CheckTransferComplete(w http.ResponseWriter, req *http.Request) {
 	var result CheckResult
 	result.Result = retVal
 	result.TxID = txid
+	json.NewEncoder(w).Encode(result)
+}
+
+func CheckTransferComplete_v2(w http.ResponseWriter, req *http.Request) {
+
+	var transfer_info TransferInfo
+	err := json.NewDecoder(req.Body).Decode(&transfer_info)
+	if err != nil {
+		fmt.Printf("Error in Decoding Json..")
+		return
+	}
+
+	bean := strconv.Itoa(transfer_info.BeanAmount)
+	retVal, err := isTransferComplete (transfer_info.TxId, transfer_info.SendAddr,
+		transfer_info.RecvAddr, bean)
+
+	var result CheckResult
+	result.Result = retVal
+	result.TxID = transfer_info.TxId
 	json.NewEncoder(w).Encode(result)
 }
 
@@ -302,5 +322,6 @@ func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", HealthCheck).Methods("GET")
 	router.HandleFunc("/checkTransferComplete/{txid}", CheckTransferComplete).Methods("POST")
+	router.HandleFunc("/checkTransferComplete", CheckTransferComplete_v2).Methods("POST")
 	log.Fatal(http.ListenAndServe(":8090", router))
 }
